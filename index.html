@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>หารค่าแบดมินตัน</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mut:#6a7380;--bd:#e1e5ea;--ac:#0f9d6b;--acx:#fff;--danger:#d64545;--chip:#eaf6f1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171a;--card:#1d2226;--tx:#eceff2;--mut:#99a3ad;--bd:#2f363c;--ac:#2cc58d;--acx:#06281c;--danger:#ff7a7a;--chip:#1f3a31}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14171a;--card:#1d2226;--tx:#eceff2;--mut:#99a3ad;--bd:#2f363c;--ac:#2cc58d;--acx:#06281c;--danger:#ff7a7a;--chip:#1f3a31}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Noto Sans Thai",system-ui,-apple-system,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 14px}
+h2{font-size:16px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label{font-size:13px;color:var(--mut);display:flex;flex-direction:column;gap:3px;flex:1;min-width:110px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;width:100%}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:8px 12px;cursor:pointer}
+button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+button.x{color:var(--danger);padding:4px 10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{background:var(--chip);border-radius:999px;padding:4px 6px 4px 12px;display:flex;align-items:center;gap:4px}
+.chip button{border:0;background:none;padding:0 6px;color:var(--mut)}
+.chip.t{cursor:pointer;padding:4px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--mut)}
+.chip.t.on{background:var(--chip);color:var(--tx);border-color:var(--ac)}
+.game{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px}
+.game .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:600}
+.grid4{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.vs{font-size:12px;color:var(--mut);white-space:nowrap}
+.sub{font-size:12px;color:var(--mut);margin-top:6px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;white-space:nowrap}
+th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--bd)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:500;font-size:12px}
+td.tot{font-weight:700;color:var(--ac)}
+tfoot td{font-weight:700;border-bottom:0}
+.empty{color:var(--mut);font-size:14px;padding:6px 0}
+.other{border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px}
+.trow{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px;flex-wrap:wrap}
+.trow label{min-width:90px}
+.big td{font-weight:600}
+.dl{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)}
+.dl.g{font-weight:700;color:var(--ac);border-bottom:0;font-size:16px}
+.dl.s{color:var(--mut);padding-left:12px;font-size:14px}
+.warn{background:#fff4d6;color:#6b4e00;border:1px solid #f0d98a;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:14px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warn{background:#3a3016;color:#f3d98a;border-color:#6b5a22}}
+:root[data-theme="dark"] .warn{background:#3a3016;color:#f3d98a;border-color:#6b5a22}
+.pt td,.pt th{text-align:left}.pt td:nth-child(3){white-space:normal;min-width:200px}.pt td:last-child{text-align:right}
+.chip.lv{display:inline-flex;padding:2px 10px;font-size:13px;margin:2px 4px 2px 0}
+.ct{font-size:13px}.ct th,.ct td{padding:6px 4px;white-space:nowrap}.ct td.wr{white-space:normal}
+.sub.sm{font-size:11px;white-space:normal;margin:2px 0 0}
+.prev{border:1px dashed var(--ac);border-radius:10px;padding:10px;margin-bottom:8px}
+.game.done{background:var(--bg)}
+.capx{display:none}
+body.cap main>:not(.keep){display:none}
+body.cap .capx{display:block;text-align:center;margin:12px 0}
+body.cap .nocap{display:none}
+@media (max-width:480px){main{padding:10px}.card{padding:10px}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<main>
+<h1>🏸 หารค่าแบดมินตัน</h1>
+<div class="card" style="padding:10px 14px"><label style="flex-direction:row;align-items:center;gap:10px;font-size:15px;color:var(--tx)">📅 วันที่เล่น<input type="date" id="pdate" style="max-width:200px"></label></div>
+
+<div class="card">
+<h2>1. ผู้เล่นในก๊วน <span class="sub" id="pcount" style="margin:0;font-weight:400"></span></h2>
+<div class="row">
+<input id="pname" placeholder="พิมพ์ชื่อ" style="flex:1;min-width:140px">
+</div>
+<div class="sub" style="margin:10px 0 4px">ระดับมือ (เลือกได้มากกว่า 1)</div>
+<div class="row"><div class="chips" id="alv" style="margin:0;flex:1"></div><button class="p" id="addP">เพิ่ม</button></div>
+<div class="scroll" id="players" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+<h2>2. ค่าสนาม</h2>
+<div class="row">
+<label>ค่าสนาม (บาท/ชม.)<input type="number" id="rate" min="0" inputmode="decimal"></label>
+<label>จองทั้งหมด (ชม.)<input type="number" id="hours" min="0" step="0.5" inputmode="decimal"></label>
+<label>คนจ่ายค่าสนาม<select id="cp"></select></label>
+<label>ปัดยอดขึ้น
+<select id="round"><option value="0">ไม่ปัด</option><option value="5">เป็น 5 บาท</option><option value="10">เป็น 10 บาท</option></select></label>
+</div>
+</div>
+
+<div class="card">
+<h2>3. ลูกแบดมินตัน</h2>
+<div class="sub" style="margin:0 0 8px">ใส่ชื่อ ราคาต่อลูก เลขลูกเริ่มต้น (ตามเลขที่เขียนไว้ที่หัวลูก) และจำนวนลูกในหลอด ระบบจะตั้งชื่อลูกตามเลขนั้น เช่น เริ่มที่ 7 จำนวน 12 ลูก จะได้ Yonex7 ถึง Yonex18 และเลือกเจ้าของลูกแบดมินตัน</div>
+<div id="types"></div>
+<button id="addT">+ เพิ่มลูกแบดมินตัน</button>
+</div>
+
+<div class="card">
+<h2>4. เกมที่เล่น</h2>
+<div id="games"></div>
+<div id="warn"></div>
+<button class="p" id="addG">+ เพิ่มเกม</button>
+</div>
+
+<div class="card">
+<h2>5. ค่าอื่นๆ (น้ำ ที่จอดรถ ฯลฯ)</h2>
+<div id="others"></div>
+<button id="addO">+ เพิ่มรายการ</button>
+</div>
+
+<div class="card keep">
+<h2>สรุปรวมทั้งวัน</h2>
+<div id="day"></div>
+</div>
+
+<div class="card keep">
+<h2>สรุปยอดต่อคน</h2>
+<div class="scroll" id="sum"></div>
+<div class="row nocap" style="margin-top:12px"><button id="capon">📸 โหมดแคปหน้าจอ</button><button class="p" id="copy">คัดลอกสรุปไว้ส่งไลน์</button><button id="xls">Export to Excel</button><span class="sub" id="msg"></span></div>
+</div>
+<div class="card keep">
+<h2>วิธีโอนเงิน</h2>
+<div id="settle"></div>
+</div>
+
+<div class="capx keep"><button class="p" id="capoff">← ออกจากโหมดแคป</button></div>
+
+<div style="text-align:center;margin:4px 0 20px"><button class="x" id="clr">ล้างข้อมูลทั้งหมด</button></div>
+</main>
+
+<script>
+const S={players:[],rate:160,hours:4,round:0,types:[],games:[],others:[],nid:1};
+const $=id=>document.getElementById(id);
+const nid=()=>S.nid++;
+const LV=['New','BG','NB','N','S','P'];const ALL='ทุกมือ',LVA=LV.concat([ALL]);let addLv=[];const gmsg={},gprev={};
+function isAll(p){return (p.lv||[]).includes(ALL)}
+function isFlex(p){return isAll(p)||!lvIdx(p).length}
+function lvIdx(p){return (p.lv||[]).map(x=>LV.indexOf(x)).filter(i=>i>=0)}
+function comp(a,b){if(isAll(a)||isAll(b))return true;const A=lvIdx(a),B=lvIdx(b);if(!A.length||!B.length)return true;return A.some(i=>B.some(j=>Math.abs(i-j)<=1))}
+function gcounts(){const c={};S.players.forEach(p=>c[p.id]=0);S.games.forEach(g=>g.p.forEach(x=>{if(x&&c[x]!==undefined)c[x]++}));return c}
+function waiting(){const c=gcounts(),n=S.players.length;if(n<3)return[];const tot=S.players.reduce((a,p)=>a+c[p.id],0);return S.players.map(p=>({p,n:c[p.id],avg:(tot-c[p.id])/(n-1)})).filter(x=>x.avg-x.n>=3)}
+function randomGame(g){
+  if(!S.players.length)return {ids:[],slots:[null,null,null,null],msg:'ยังไม่มีผู้เล่น'};
+  const c=gcounts(),mx=Math.max(0,...Object.values(c));
+  const idx=S.games.indexOf(g),prev=idx>0?S.games[idx-1].p.filter(Boolean):[];
+  const w=p=>(1+mx-c[p.id])*(prev.includes(p.id)?0.25:1);
+  const pick=pool=>{const t=pool.reduce((a,p)=>a+w(p),0);let r=Math.random()*t;for(const p of pool){r-=w(p);if(r<=0)return p}return pool[pool.length-1]};
+  const valid=x=>x&&S.players.some(p=>p.id===x);
+  let slots0=g.p.map(x=>valid(x)?x:null);
+  if(slots0.every(Boolean))slots0=[null,null,null,null];
+  let chosen=slots0.filter(Boolean);
+  let anchor=chosen.map(id=>S.players.find(p=>p.id===id)).find(p=>p&&!isFlex(p))||null;
+  if(!chosen.length){const p0=S.players.filter(p=>!isFlex(p)),a=pick(p0.length?p0:S.players);chosen=[a.id];if(!isFlex(a))anchor=a}
+  while(chosen.length<4){
+    const pool=S.players.filter(p=>!chosen.includes(p.id)&&(!anchor||comp(anchor,p)));
+    if(!pool.length)break;const q=pick(pool);chosen.push(q.id);if(!anchor&&!isFlex(q))anchor=q;
+  }
+  // จัดคู่ให้สมดุล: ผลรวมระดับของคู่ 1-2 ใกล้เคียงคู่ 3-4 และเลี่ยงคู่ที่เคยจับซ้ำ
+  const fixed=new Set(slots0.filter(Boolean)),newOnes=chosen.filter(id=>!fixed.has(id));
+  const empt=[0,1,2,3].filter(i=>!slots0[i]);
+  const ps=id=>S.players.find(p=>p.id===id);
+  const sc=p=>{const ix=lvIdx(p);return ix.length?ix.reduce((a,b)=>a+b,0)/ix.length:null};
+  const hist=(a,b)=>S.games.reduce((n,h)=>{if(h===g)return n;const i=h.p.indexOf(a),j=h.p.indexOf(b);return n+((i>=0&&j>=0&&(i>>1)===(j>>1))?1:0)},0);
+  const perms=a=>a.length<2?[a]:a.flatMap((x,i)=>perms([...a.slice(0,i),...a.slice(i+1)]).map(r=>[x,...r]));
+  let best=null,bc=1e9;
+  for(const pm of perms(newOnes)){
+    const sl=slots0.slice();empt.forEach((si,k)=>{sl[si]=pm[k]||null});
+    const known=sl.filter(Boolean).map(id=>sc(ps(id))).filter(v=>v!=null);
+    const mean=known.length?known.reduce((a,b)=>a+b,0)/known.length:2.5;
+    const val=id=>id?(sc(ps(id))??mean):0;
+    const cost=Math.abs(val(sl[0])+val(sl[1])-val(sl[2])-val(sl[3]))*10+(sl[0]&&sl[1]?hist(sl[0],sl[1]):0)+(sl[2]&&sl[3]?hist(sl[2],sl[3]):0)+Math.random()*0.01;
+    if(cost<bc){bc=cost;best=sl}
+  }
+  const slots=best||slots0;
+  return {ids:slots.filter(Boolean),slots,msg:chosen.length<4?'ผู้เล่นที่ระดับมือเข้ากันได้ไม่พอ ได้ '+chosen.length+' คน':''};
+}
+const save=()=>{const j=strip(S);if(j!==lastJ){S.ts=Date.now();lastJ=j}try{localStorage.setItem('badsplit-standalone',JSON.stringify(S))}catch(e){}updStatus()};
+try{const d=JSON.parse(localStorage.getItem('badsplit-standalone')||'null');if(d&&d.players)Object.assign(S,d)}catch(e){}
+const canon=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.keys(x).sort().reduce((a,y)=>(a[y]=x[y],a),{}):x);
+function strip(o){return canon([o.players,o.rate,o.hours,o.round,o.cp||null,o.types,o.games,o.others,o.date||''])}
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dateTh(){if(!S.date)return '-';try{return new Date(S.date+'T00:00:00').toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){return S.date}}
+if(!S.date)S.date=todayStr();
+let lastJ=strip(S),cloud=null,cloudJ=null,cloudMsg='',cloudAt='';
+function updStatus(){
+  const el=document.getElementById('svs');if(!el)return;
+  if(cloudMsg){el.textContent=cloudMsg;return}
+  if(!cloud){el.textContent='';return}
+  if(cloudJ!==null&&cloudJ===strip(S))el.textContent='✓ บันทึกแล้ว'+(cloudAt?' ('+cloudAt+')':'');
+  else el.textContent=(S.players.length||S.games.length)?'● มีการแก้ไขที่ยังไม่ได้บันทึก':'';
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n.toLocaleString('th-TH',{maximumFractionDigits:2});
+const tname=t=>t.name||'ลูก';
+
+const stN=t=>t.start==null||t.start===''||isNaN(+t.start)?1:Math.floor(+t.start);
+function pieces(){const a=[];S.types.forEach(t=>{for(let k=1;k<=(t.qty|0);k++)a.push({id:t.id+'-'+k,tid:t.id,label:tname(t)+(stN(t)+k-1),price:t.price||0})});return a}
+
+function calc(){
+  const r={};S.players.forEach(p=>r[p.id]={g:0,court:0,bt:{},shuttle:0,other:0});
+  const P=pieces(),pm={};P.forEach(x=>pm[x.id]=x);
+  const act=g=>g.p.filter(x=>x&&r[x]);
+  const use={};
+  S.games.forEach(g=>{if(!act(g).length)return;g.s.forEach(id=>{if(pm[id])use[id]=(use[id]||0)+1})});
+  const tot={court:0,bt:{},shuttle:0,other:0},gi={};
+  const ng=S.games.filter(g=>act(g).length).length;
+  S.games.forEach(g=>{
+    const ids=act(g);if(!ids.length)return;
+    const court=S.rate*S.hours/ng,sh={};let shT=0;
+    g.s.forEach(id=>{const x=pm[id];if(!x)return;const c=x.price/use[id];sh[x.tid]=(sh[x.tid]||0)+c;shT+=c});
+    gi[g.id]={court,shuttle:shT,n:ids.length};
+    tot.court+=court;tot.shuttle+=shT;
+    for(const t in sh)tot.bt[t]=(tot.bt[t]||0)+sh[t];
+    ids.forEach(i=>{r[i].g++;r[i].court+=court/ids.length;r[i].shuttle+=shT/ids.length;
+      for(const t in sh)r[i].bt[t]=(r[i].bt[t]||0)+sh[t]/ids.length});
+  });
+  S.others.forEach(o=>{const m=o.m.filter(x=>r[x]);if(!m.length)return;tot.other+=o.amt||0;m.forEach(i=>r[i].other+=(o.amt||0)/m.length)});
+  Object.values(r).forEach(v=>{v.sum=v.court+v.shuttle+v.other;v.pay=S.round?Math.ceil(v.sum/S.round-1e-9)*S.round:Math.round(v.sum)});
+  tot.sum=tot.court+tot.shuttle+tot.other;
+  return{r,tot,gi,P};
+}
+
+const popt=(sel,ph)=>`<option value="">${ph}</option>`+S.players.map(p=>`<option value="${p.id}"${sel===p.id?' selected':''}>${esc(p.name)}</option>`).join('');
+function render(){
+  const C=calc(),P=C.P,pids=P.map(x=>x.id);
+  const useN={};S.games.forEach(h=>h.s.forEach(id=>{if(id)useN[id]=(useN[id]||0)+1}));
+  const W=waiting(),wSet=new Set(W.map(x=>x.p.id));
+  const warnH=W.length?`<div class="warn">⏳ <b>รอนานแล้ว</b> (เล่นน้อยกว่าคนอื่นตั้งแต่ 3 เกมขึ้นไป)<br>${W.map(x=>`${esc(x.p.name)} · เล่น ${x.n} เกม (คนอื่นเฉลี่ย ${fmt(Math.round(x.avg*10)/10)})`).join('<br>')}</div>`:'';const nxt=S.games.findIndex(g=>!g.done);$('warn').innerHTML=nxt<0?warnH:'';
+  $('alv').innerHTML=LVA.map(l=>`<span class="chip t${addLv.includes(l)?' on':''}" data-al="${l}">${l}</span>`).join('');
+  const pOpts=cur=>S.types.map(t=>{const ps=P.filter(x=>x.tid===t.id);return ps.length?`<optgroup label="${esc(tname(t))}">${ps.map(x=>`<option value="${x.id}"${cur===x.id?' selected':''}>${esc(x.label)}${useN[x.id]?' · ใช้ '+useN[x.id]+' เกม':''}</option>`).join('')}</optgroup>`:''}).join('');
+  $('rate').value=S.rate;$('hours').value=S.hours;$('round').value=S.round;$('cp').innerHTML=popt(S.cp,'-- เลือก --');$('pdate').value=S.date||'';$('pcount').textContent='(ทั้งหมด '+S.players.length+' คน)';$('pname').placeholder='พิมพ์ชื่อคนที่ '+(S.players.length+1)+' แล้วกดเพิ่ม';
+  $('players').innerHTML=S.players.length?`<table class="pt"><thead><tr><th>#</th><th>ชื่อ</th><th>ระดับมือ</th><th></th></tr></thead><tbody>${S.players.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.name)}</td><td>${LVA.map(l=>`<span class="chip t lv${(p.lv||[]).includes(l)?' on':''}" data-pl="${p.id}:${l}">${l}</span>`).join('')}</td><td><button class="x" data-rp="${p.id}" aria-label="ลบ">✕</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">ยังไม่มีผู้เล่น</div>';
+  $('types').innerHTML=S.types.map(t=>`<div class="trow">
+    <label>ลูกแบดมินตัน<input data-tn="${t.id}" value="${esc(t.name)}" placeholder="เช่น Yonex"></label>
+    <label>ราคา/ลูก<input type="number" min="0" data-tp="${t.id}" value="${t.price}"></label>
+    <label>เลขลูกเริ่มต้น<input type="number" min="0" step="1" data-ts="${t.id}" value="${stN(t)}"></label>
+    <label>จำนวนลูกในหลอด<input type="number" min="0" step="1" data-tq="${t.id}" value="${t.qty}"></label>
+    <label>เจ้าของลูกแบดมินตัน<select data-to="${t.id}">${popt(t.owner,'ไม่ระบุ')}</select></label>
+    <button class="x" data-rt="${t.id}">ลบ</button>${t.qty>0?`<div class="sub" style="width:100%;margin:0">ลูกเลข ${stN(t)}–${stN(t)+(t.qty|0)-1} (รวม ${t.qty|0} ลูก)</div>`:''}</div>`).join('');
+  $('games').innerHTML=S.games.length?S.games.map((g,i)=>{
+    if(g.done){const nmz=g.p.filter(x=>x).map(id=>{const q=S.players.find(p=>p.id===id);return q?esc(q.name):''}).join(' · ');const bl=g.s.filter(Boolean).map(id=>{const x=P.find(y=>y.id===id);return x?esc(x.label):''}).join(', ');const i3=C.gi[g.id];return `<div class="game done"><div class="hd"><span>🔒 เกม ${i+1} · จบแล้ว</span><button data-unlock="${g.id}">ปลดล็อก</button></div><div class="sub" style="margin:0;white-space:normal">${nmz||'-'}${bl?' · ลูก '+bl:''}${i3?` · ต่อคน ${fmt((i3.court+i3.shuttle)/i3.n)} บาท`:''}</div></div>`}
+    const sel=[0,1,2,3].map(k=>{
+      const taken=g.p.filter((x,j)=>j!==k&&x);
+      return `${k%2?'<span class="vs">คู่กับ</span>':''}<select data-g="${g.id}" data-k="${k}"><option value="">ผู้เล่น ${k+1}</option>${S.players.filter(p=>!taken.includes(p.id)).map(p=>`<option value="${p.id}"${g.p[k]===p.id?' selected':''}>${esc(p.name)}${p.lv&&p.lv.length?' · '+p.lv.join('/'):''}${wSet.has(p.id)?' ⏳':''}</option>`).join('')}</select>`}).join('');
+    const pv=gprev[g.id];
+    const nmOf=id=>{const q=S.players.find(p=>p.id===id);return q?esc(q.name)+(q.lv&&q.lv.length?' · '+q.lv.join('/'):''):'—'};
+    const pvH=pv?`<div class="prev"><div><b>ตัวอย่างที่สุ่มได้</b>${pv.ids.length?'':' (ไม่มี)'}<br>${nmOf(pv.slots[0])} คู่กับ ${nmOf(pv.slots[1])}<div class="sub sm" style="margin:2px 0">เจอกับ</div>${nmOf(pv.slots[2])} คู่กับ ${nmOf(pv.slots[3])}</div>${pv.msg?`<div class="sub" style="color:var(--danger)">${esc(pv.msg)}</div>`:''}<div class="row" style="margin-top:8px"><button data-rnd="${g.id}">🔄 สุ่มใหม่</button><button class="p" data-rok="${g.id}"${pv.ids.length?'':' disabled'}>✅ ยืนยันลงเกม</button><button data-rx="${g.id}">ยกเลิก</button></div></div>`:'';
+    const n=g.p.filter(Boolean).length,i2=C.gi[g.id];
+    const chips=P.length?(g.s.length?g.s:['']).map((pid,k)=>`<select data-gs="${g.id}:${k}" style="flex:1;min-width:140px"><option value="">${k?'(เอาออก)':'เลือกลูก'}</option>${pOpts(pid)}</select>`).join('')+(g.s.length&&!g.s.includes('')?`<button data-ga="${g.id}">+ ลูก</button>`:''):'<span class="sub">ยังไม่ได้เพิ่มลูก (ไปที่ข้อ 3)</span>';
+    return `<div class="game"><div class="hd"><span>เกม ${i+1}</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button data-rnd="${g.id}">🎲 สุ่มผู้เล่น</button><button data-done="${g.id}">🏁 จบเกม</button><button class="x" data-rg="${g.id}">ลบ</button></span></div>${i===nxt?warnH:''}${pvH}
+    <div class="grid4">${sel}</div>
+    
+    <div class="sub" style="margin-top:10px">ลูกที่ใช้ในเกมนี้ (กด “+ ลูก” ถ้าใช้หลายลูก)</div>
+    <div class="chips">${chips}</div>
+    ${n<4?`<div class="sub">เลือกผู้เล่นแล้ว ${n}/4 คน (ยอดจะหารตามคนที่เลือก)</div>`:''}
+    ${i2?`<div class="sub">เกมนี้ต่อคน: สนาม ${fmt(i2.court/i2.n)} + ลูก ${fmt(i2.shuttle/i2.n)} = ${fmt((i2.court+i2.shuttle)/i2.n)} บาท</div>`:''}</div>`}).join(''):'<div class="empty">ยังไม่มีเกม กด “เพิ่มเกม” ได้เลย</div>';
+  $('others').innerHTML=S.others.map(o=>`<div class="other"><div class="row">
+    <label>รายการ<input data-on="${o.id}" value="${esc(o.name)}"></label>
+    <label>จำนวนเงิน (บาท)<input type="number" min="0" data-oa="${o.id}" value="${o.amt}"></label>
+    <label>คนจ่าย<select data-op="${o.id}">${popt(o.payer,'ไม่ระบุ')}</select></label>
+    <button class="x" data-ro="${o.id}">ลบ</button></div>
+    <div class="sub">คนที่ร่วมหาร (กดเพื่อเลือก/ยกเลิก)</div>
+    <div class="chips">${S.players.map(p=>`<span class="chip t${o.m.includes(p.id)?' on':''}" data-ot="${o.id}:${p.id}">${esc(p.name)}</span>`).join('')}</div></div>`).join('');
+  renderSum();save();
+}
+
+function renderSum(){
+  const C=calc(),r=C.r,t=C.tot;
+  renderSettle(C);
+  // day summary
+  const dl=[`<div class="dl"><span>ค่าสนามรวม (${fmt(S.rate)} × ${fmt(S.hours)} ชม.)</span><span>${fmt(t.court)}</span></div>`];
+  S.types.forEach(x=>dl.push(`<div class="dl s"><span>ลูก ${esc(tname(x))}</span><span>${fmt(t.bt[x.id]||0)}</span></div>`));
+  dl.push(`<div class="dl"><span>ค่าลูกรวม</span><span>${fmt(t.shuttle)}</span></div>`);
+  if(t.other)dl.push(`<div class="dl"><span>ค่าอื่นๆ</span><span>${fmt(t.other)}</span></div>`);
+  dl.push(`<div class="dl g"><span>รวมทั้งวัน</span><span>${fmt(t.sum)} บาท</span></div>`);
+  const coll=S.players.reduce((a,p)=>a+r[p.id].pay,0);
+  if(S.players.length&&Math.round(coll)!==Math.round(t.sum))dl.push(`<div class="sub">ยอดเก็บจริงหลังปัด ${fmt(coll)} บาท (ส่วนต่าง ${fmt(coll-t.sum)})</div>`);
+  const free=S.types.reduce((a,x)=>{let u=0;return a},0);
+  $('day').innerHTML=`<div class="sub" style="margin:0 0 6px">📅 ${dateTh()}</div>`+dl.join('');
+  // per person
+  if(!S.players.length){$('sum').innerHTML='<div class="empty">เพิ่มผู้เล่นและเกมเพื่อดูยอด</div>';return}
+  const gl=id=>S.games.map((g,i)=>g.p.includes(id)?i+1:0).filter(Boolean);
+  const hasO=t.other>0;
+  const rows=S.players.map(p=>{const v=r[p.id];
+    const bt=S.types.filter(x=>v.bt[x.id]).map(x=>esc(tname(x))+' '+fmt(v.bt[x.id])).join(' · ');
+    return `<tr><td>${esc(p.name)}<div class="sub sm">เกมที่ ${gl(p.id).join(', ')||'-'}</div></td><td>${v.g}</td><td>${fmt(v.court)}</td><td>${fmt(v.shuttle)}${bt?`<div class="sub sm">${bt}</div>`:''}</td>${hasO?`<td>${fmt(v.other)}</td>`:''}<td class="tot">${fmt(v.pay)}</td></tr>`}).join('');
+  const foot=`<tr><td>รวม</td><td></td><td>${fmt(t.court)}</td><td>${fmt(t.shuttle)}</td>${hasO?`<td>${fmt(t.other)}</td>`:''}<td>${fmt(coll)}</td></tr>`;
+  $('sum').innerHTML=`<table class="ct"><thead><tr><th>ชื่อ</th><th>เกม</th><th>สนาม</th><th>ลูก</th>${hasO?'<th>อื่นๆ</th>':''}<th>จ่าย</th></tr></thead><tbody>${rows}</tbody><tfoot>${foot}</tfoot></table>`;
+}
+
+
+function settle(C){
+  const cp=S.cp;if(!cp||!S.players.some(p=>p.id===cp))return null;
+  const r=C.r,t=C.tot,F={},det={};
+  S.players.forEach(p=>{F[p.id]=0;det[p.id]=[]});
+  F[cp]+=t.court;if(t.court)det[cp].push('ค่าสนาม '+fmt(t.court));
+  S.types.forEach(y=>{const o=S.players.some(p=>p.id===y.owner)?y.owner:cp;const v=t.bt[y.id]||0;F[o]+=v;if(v)det[o].push('ลูก '+tname(y)+' '+fmt(v))});
+  S.others.forEach(o=>{if(!o.m.some(x=>r[x]))return;const q=S.players.some(p=>p.id===o.payer)?o.payer:cp;F[q]+=o.amt||0;if(o.amt)det[q].push((o.name||'ค่าอื่นๆ')+' '+fmt(o.amt))});
+  const rows=S.players.map(p=>({id:p.id,pay:r[p.id].pay,F:F[p.id],net:Math.round(r[p.id].pay-F[p.id]),det:det[p.id]}));
+  const flows=[];
+  rows.forEach(x=>{if(x.id===cp)return;if(x.net>0)flows.push({from:x.id,to:cp,amt:x.net});else if(x.net<0)flows.push({from:cp,to:x.id,amt:-x.net})});
+  return{cp,rows,flows};
+}
+function renderSettle(C){
+  const el=$('settle');
+  if(!S.players.length){el.innerHTML='<div class="empty">เพิ่มผู้เล่นและเกมก่อน</div>';return}
+  const st=settle(C);
+  if(!st){el.innerHTML='<div class="empty">เลือก “คนจ่ายค่าสนาม” ในข้อ 2 เพื่อดูวิธีโอนเงิน</div>';return}
+  const nm={};S.players.forEach(p=>nm[p.id]=p.name);
+  const cpn=esc(nm[st.cp]);
+  const toTxt=x=>x.id===st.cp?(st.flows.filter(f=>f.from===st.cp).map(f=>esc(nm[f.to])+' '+fmt(f.amt)).join(', ')||'-'):x.net>0?cpn:x.net<0?'รับจาก '+cpn:'-';
+  const vis=st.rows.filter(x=>x.pay>0||x.F>0||x.id===st.cp);
+  const rows=vis.map(x=>`<tr><td>${esc(nm[x.id])}${x.id===st.cp?'<div class="sub sm">จ่ายค่าสนาม</div>':''}</td><td>${fmt(x.pay)}</td><td class="tot">${x.id===st.cp?'-':fmt(x.net)}</td><td class="wr">${toTxt(x)}</td></tr>`).join('');
+  const rows2=vis.map(x=>`<tr><td>${esc(nm[x.id])}</td><td>${fmt(x.pay)}</td><td>${fmt(x.F)}${x.det.length?`<div class="sub sm">${esc(x.det.join(', '))}</div>`:''}</td></tr>`).join('');
+  el.innerHTML=`<div class="sub" style="margin:0 0 8px;white-space:normal">โอนให้ ${cpn} ก่อน ถ้าใครออกเงินแทนไว้มากกว่ายอดที่ต้องจ่าย ${cpn} จะโอนส่วนต่างให้ (สุทธิ + = ต้องโอน, − = ได้รับ)</div><table class="ct"><thead><tr><th>ชื่อ</th><th>ต้องจ่าย</th><th>สุทธิ</th><th>โอนให้</th></tr></thead><tbody>${rows}</tbody></table>`
+    +(S.round?`<div class="sub">ส่วนต่างจากการปัดเศษอยู่ที่ ${cpn}</div>`:'')
+    +`<details class="nocap" style="margin-top:10px"><summary class="sub" style="cursor:pointer">ดูรายละเอียดการคำนวณ</summary><div class="scroll"><table class="ct"><thead><tr><th>ชื่อ</th><th>ต้องจ่าย</th><th>ออกเงินไปแล้ว</th></tr></thead><tbody>${rows2}</tbody></table></div></details>`;
+}
+function flowTxt(){
+  const C=calc(),st=settle(C);if(!st)return '';
+  const nm={};S.players.forEach(p=>nm[p.id]=p.name);
+  return '\n\nวิธีโอน ('+nm[st.cp]+' จ่ายค่าสนาม)\n'+(st.flows.map(f=>`${nm[f.from]} โอนให้ ${nm[f.to]} ${f.amt} บาท`).join('\n')||'ไม่มียอดที่ต้องโอน');
+}
+function summaryText(){return summaryBase()+flowTxt()}
+function summaryBase(){
+  const C=calc(),r=C.r,t=C.tot;
+  let x='🏸 สรุปค่าแบด '+dateTh()+'\n';
+  S.players.forEach(p=>{const v=r[p.id];
+    const bt=S.types.filter(y=>v.bt[y.id]).map(y=>`${tname(y)} ${fmt(v.bt[y.id])}`).join(', ');
+    x+=`${p.name} (${v.g} เกม) สนาม ${fmt(v.court)} + ลูก ${fmt(v.shuttle)}${bt?' ['+bt+']':''}${v.other?' + อื่นๆ '+fmt(v.other):''} = ${v.pay} บาท\n`});
+  return x+`\nค่าสนามรวม ${fmt(t.court)} / ค่าลูกรวม ${fmt(t.shuttle)}${t.other?' / อื่นๆ '+fmt(t.other):''}\nรวมทั้งวัน ${fmt(t.sum)} บาท`;
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-rp],[data-rg],[data-ro],[data-ot],[data-rt],[data-ga],[data-rnd],[data-pl],[data-al],[data-rok],[data-rx],[data-done],[data-unlock]');
+  if(!t)return;
+  if(t.dataset.rp){const id=+t.dataset.rp;S.players=S.players.filter(p=>p.id!==id);S.games.forEach(g=>g.p=g.p.map(x=>x===id?null:x));S.others.forEach(o=>{o.m=o.m.filter(x=>x!==id);if(o.payer===id)o.payer=null});if(S.cp===id)S.cp=null;S.types.forEach(y=>{if(y.owner===id)y.owner=null})}
+  else if(t.dataset.rg)S.games=S.games.filter(g=>g.id!==+t.dataset.rg);
+  else if(t.dataset.ro)S.others=S.others.filter(o=>o.id!==+t.dataset.ro);
+  else if(t.dataset.rt){const id=+t.dataset.rt;S.types=S.types.filter(y=>y.id!==id);S.games.forEach(g=>g.s=g.s.filter(k=>!k.startsWith(id+'-')))}
+  else if(t.dataset.ot){const[oi,pi]=t.dataset.ot.split(':').map(Number);const o=S.others.find(o=>o.id===oi);o.m=o.m.includes(pi)?o.m.filter(x=>x!==pi):[...o.m,pi]}
+  else if(t.dataset.ga){const g=S.games.find(g=>g.id===+t.dataset.ga);if(!g.s.includes(''))g.s.push('')}
+  else if(t.dataset.rnd){const g=S.games.find(g=>g.id===+t.dataset.rnd);gprev[g.id]=randomGame(g)}
+  else if(t.dataset.rok){const g=S.games.find(g=>g.id===+t.dataset.rok),pv=gprev[g.id];if(pv&&pv.ids.length)g.p=pv.slots.slice();delete gprev[g.id]}
+  else if(t.dataset.rx){delete gprev[+t.dataset.rx]}
+  else if(t.dataset.done){const g=S.games.find(g=>g.id===+t.dataset.done);g.done=true;delete gprev[g.id]}
+  else if(t.dataset.unlock){S.games.find(g=>g.id===+t.dataset.unlock).done=false}
+  else if(t.dataset.pl){const[pi,lv]=t.dataset.pl.split(':');const p=S.players.find(p=>p.id===+pi),cur=p.lv||[];p.lv=cur.includes(lv)?cur.filter(x=>x!==lv):LVA.filter(x=>x===lv||cur.includes(x))}
+  else if(t.dataset.al){const lv=t.dataset.al;addLv=addLv.includes(lv)?addLv.filter(x=>x!==lv):LVA.filter(x=>x===lv||addLv.includes(x))}
+  render();
+});
+
+function addPlayer(){const v=$('pname').value.trim();if(!v)return;S.players.push({id:nid(),name:v,lv:[...addLv]});S.others.forEach(o=>o.m.push(S.players.at(-1).id));$('pname').value='';addLv=[];render();$('pname').focus()}
+$('addP').onclick=addPlayer;
+$('pname').onkeydown=e=>{if(e.key==='Enter')addPlayer()};
+$('addT').onclick=()=>{S.types.push({id:nid(),name:'',price:30,qty:1});render()};
+$('addG').onclick=()=>{const last=S.games.at(-1);S.games.push({id:nid(),p:[null,null,null,null],s:last?[...last.s]:[]});render()};
+$('addO').onclick=()=>{S.others.push({id:nid(),name:'',amt:0,m:S.players.map(p=>p.id)});render()};
+
+document.addEventListener('change',e=>{
+  const d=e.target.dataset;
+  if(d.g){delete gprev[+d.g];S.games.find(g=>g.id===+d.g).p[+d.k]=e.target.value?+e.target.value:null;render()}
+  else if(e.target.id==='round'){S.round=+e.target.value;render()}
+  else if(e.target.id==='cp'){S.cp=+e.target.value||null;render()}
+  else if(e.target.id==='pdate'){S.date=e.target.value||todayStr();render()}
+  else if(d.to){S.types.find(y=>y.id===+d.to).owner=+e.target.value||null;render()}
+  else if(d.op){S.others.find(o=>o.id===+d.op).payer=+e.target.value||null;render()}
+  else if(d.gs){const[gi,ki]=d.gs.split(':');const g=S.games.find(g=>g.id===+gi),k=+ki,v=e.target.value;if(v)g.s[k]=v;else g.s.splice(k,1);g.s=[...new Set(g.s)];render()}
+  else if(d.tn||d.tp||d.tq||d.ts||e.target.id==='rate'||e.target.id==='hours')render();
+});
+document.addEventListener('input',e=>{
+  const d=e.target.dataset,v=e.target.value;
+  if(e.target.id==='rate')S.rate=+v||0;
+  else if(e.target.id==='hours')S.hours=Math.max(0,+v||0);
+  else if(e.target.id==='pdate'){if(v)S.date=v}
+  else if(d.tn)S.types.find(y=>y.id===+d.tn).name=v;
+  else if(d.tp)S.types.find(y=>y.id===+d.tp).price=+v||0;
+  else if(d.tq)S.types.find(y=>y.id===+d.tq).qty=Math.max(0,Math.min(99,Math.floor(+v)||0));
+  else if(d.ts){const n=v===''?1:Math.floor(+v);S.types.find(y=>y.id===+d.ts).start=isNaN(n)?1:Math.max(0,n)}
+  else if(d.gm)S.games.find(g=>g.id===+d.gm).min=+v||0;
+  else if(d.on)S.others.find(o=>o.id===+d.on).name=v;
+  else if(d.oa)S.others.find(o=>o.id===+d.oa).amt=+v||0;
+  else return;
+  renderSum();save();
+});
+
+$('copy').onclick=async()=>{
+  const t=summaryText();
+  try{await navigator.clipboard.writeText(t);$('msg').textContent='คัดลอกแล้ว ✓'}
+  catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');$('msg').textContent='คัดลอกแล้ว ✓'}catch(_){$('msg').textContent='คัดลอกไม่สำเร็จ'}a.remove()}
+};
+let clrT=null;
+$('clr').onclick=()=>{
+  const b=$('clr');
+  if(!clrT){b.textContent='กดอีกครั้งเพื่อยืนยันล้างทั้งหมด (รวมที่บันทึกไว้)';clrT=setTimeout(()=>{clrT=null;b.textContent='ล้างข้อมูลทั้งหมด'},4000);return}
+  clearTimeout(clrT);clrT=null;b.textContent='ล้างข้อมูลทั้งหมด';
+  Object.assign(S,{date:todayStr(),players:[],rate:160,hours:4,round:0,cp:null,types:[],games:[],others:[],nid:1});
+  $('msg').textContent='';render();if(cloud){cloudJ=null;cloudAt='';cloud.delete().catch(()=>{cloudMsg='ล้างข้อมูลที่บันทึกไว้ไม่สำเร็จ';updStatus()})}updStatus();
+};
+$('xls').onclick=async()=>{
+  const m=$('msg');
+  try{
+    if(!window.XLSX){m.textContent='โหลดตัวสร้างไฟล์ Excel ไม่สำเร็จ';return}
+        const C=calc(),r=C.r,t=C.tot,rd=x=>Math.round(x*100)/100;
+    const gl=id=>S.games.map((g,i)=>g.p.includes(id)?i+1:0).filter(Boolean);
+    const coll=S.players.reduce((a,p)=>a+r[p.id].pay,0);
+    const a1=[['ชื่อ','จำนวนเกม','เล่นเกมที่','ค่าสนาม',...S.types.map(x=>'ลูก '+tname(x)),'ค่าลูกรวม','ค่าอื่นๆ','ยอดก่อนปัด','ต้องจ่าย']];
+    S.players.forEach(p=>{const v=r[p.id];a1.push([p.name,v.g,gl(p.id).join(', '),rd(v.court),...S.types.map(x=>rd(v.bt[x.id]||0)),rd(v.shuttle),rd(v.other),rd(v.sum),v.pay])});
+    a1.push(['รวม','','',rd(t.court),...S.types.map(x=>rd(t.bt[x.id]||0)),rd(t.shuttle),rd(t.other),rd(t.sum),coll]);
+    const a2=[['รายการ','บาท'],['ค่าสนามรวม ('+S.rate+' × '+S.hours+' ชม.)',rd(t.court)]];
+    S.types.forEach(x=>a2.push(['ลูก '+tname(x),rd(t.bt[x.id]||0)]));
+    a2.push(['ค่าลูกรวม',rd(t.shuttle)],['ค่าอื่นๆ',rd(t.other)],['รวมทั้งวัน',rd(t.sum)],['ยอดเก็บจริงหลังปัด',coll]);
+    const nm={};S.players.forEach(p=>nm[p.id]=p.name);
+    const lb={};C.P.forEach(x=>lb[x.id]=x.label);
+    const a3=[['เกมที่','ผู้เล่น','ลูกที่ใช้','ค่าสนาม','ค่าลูก','รวมต่อคน']];
+    S.games.forEach((g,i)=>{const i2=C.gi[g.id];if(!i2)return;
+      a3.push([i+1,g.p.filter(x=>nm[x]).map(x=>nm[x]).join(', '),g.s.filter(x=>lb[x]).map(x=>lb[x]).join(', '),rd(i2.court),rd(i2.shuttle),rd((i2.court+i2.shuttle)/i2.n)])});
+    const dtl='วันที่เล่น: '+dateTh();
+    const st4=settle(C);
+    const a4=st4?[['ชื่อ','ต้องจ่าย','ออกเงินไปแล้ว','สุทธิ (+ต้องโอน / − ได้รับ)','โอนให้']]:null;
+    if(st4){st4.rows.forEach(x=>a4.push([nm[x.id]+(x.id===st4.cp?' (จ่ายค่าสนาม)':''),rd(x.pay),rd(x.F),x.id===st4.cp?'':x.net,x.id===st4.cp?st4.flows.filter(f=>f.from===st4.cp).map(f=>nm[f.to]+' '+f.amt).join(', '):x.net>0?nm[st4.cp]:x.net<0?'รับจาก '+nm[st4.cp]:'']));a4.push([],['รายการโอน','จำนวน (บาท)']);st4.flows.forEach(f=>a4.push([nm[f.from]+' → '+nm[f.to],f.amt]))}
+    const wb=XLSX.utils.book_new();
+    [['สรุปต่อคน',a1,[14,10,28]],['สรุปรวมทั้งวัน',a2,[30,12]],['รายละเอียดเกม',a3,[8,34,16]],...(a4?[['วิธีโอนเงิน',a4,[26,12,16,24,30]]]:[])].forEach(([n,a,w])=>{
+      const ws=XLSX.utils.aoa_to_sheet([[dtl],[],...a]);ws['!cols']=a[0].map((_,i)=>({wch:w[i]||13}));XLSX.utils.book_append_sheet(wb,ws,n)});
+    const buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const fn='badminton-split'+(S.date?'-'+S.date:'')+'.xlsx';const bl=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    m.textContent='บันทึกไฟล์แล้ว ✓';
+  }catch(e){m.textContent=e&&e.code==='declined'?'':'บันทึกไฟล์ไม่สำเร็จ'}
+};
+$('capon').onclick=()=>{document.body.classList.add('cap');window.scrollTo(0,0)};
+$('capoff').onclick=()=>{document.body.classList.remove('cap')};
+cloud={delete:()=>Promise.resolve()};
+render();
+</script>
+</body>
+</html>
